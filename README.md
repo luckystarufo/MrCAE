@@ -39,7 +39,9 @@
 
 - By utilizeing the above features, our network can progressively 'grow' itself and end up with the 'right' amount of parameters for characterzing the data. Different level of performances can be achieved at different stages of training.
 
-<img src="https://github.com/luckystarufo/MrCAE/blob/master/figures/reconstructions.gif" width="700" height="500" />
+<p align="center">
+	<img src="https://github.com/luckystarufo/MrCAE/blob/master/figures/reconstructions.gif" width="700" height="500" />
+</p>
 
 ## Usage
 - We provide three methods to train the architecture: train\_net(), train\_net\_one\_level() and train\_net\_one\_stage() which corresponds to (i) end-to-end training, (ii) train one level only and (iii) train one stage only (after an architecture change). 
