@@ -39,7 +39,7 @@
 
 - By utilizeing the above features, our network can progressively 'grow' itself and end up with the 'right' amount of parameters for characterzing the data. Different level of performances can be achieved at different stages of training.
 
-![figure 4: intermediate results](./figures/reconstructions.gif)<!-- .element height="50%" width="50%" -->
+![figure 4: intermediate results](./figures/reconstructions.gif)<!-- .element height="100%" width="100%" -->
 
 
 ## Usage
