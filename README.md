@@ -40,7 +40,7 @@
 - By utilizeing the above features, our network can progressively 'grow' itself and end up with the 'right' amount of parameters for characterzing the data. Different level of performances can be achieved at different stages of training.
 
 <p align="center">
-	<img src="https://github.com/luckystarufo/MrCAE/blob/master/figures/reconstructions.gif" width="700" height="500" />
+	<img src="https://github.com/luckystarufo/MrCAE/blob/master/figures/reconstructions.gif" width="700" height="550" />
 </p>
 
 ## Usage
