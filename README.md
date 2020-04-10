@@ -19,9 +19,9 @@
 	    |- MrCAE_{xxxx}.ipynb (individual experiments)
 	    |- benchmark_{xxxx}.ipynb (benchmark experiments)
 	    |- training/ (contains scripts for batch training on clusters)
-      	  |- data/ (contains simulation data, fluids data, SST data)
-      	  |- model/(contains models at different stages)
-      	  |- result/(contains training results)
+	  |- data/ (contains simulation data, fluids data, SST data)
+	  |- model/(contains models at different stages)
+	  |- result/(contains training results)
 
 ## Introduction
 - This repo provides the code for the paper "Multiresolution Convolutional Autoencoders" by Yuying Liu, Colin Ponce, Steven L. Brunton and J. Nathan Kutz (in review). 
