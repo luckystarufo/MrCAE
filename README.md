@@ -50,5 +50,10 @@
 
 ## Citation
 ```
-TBD
+@article{liu2020multiresolution,
+  title={Multiresolution Convolutional Autoencoders},
+  author={Liu, Yuying and Ponce, Colin and Brunton, Steven L and Kutz, J Nathan},
+  journal={arXiv preprint arXiv:2004.04946},
+  year={2020}
+}
 ```
