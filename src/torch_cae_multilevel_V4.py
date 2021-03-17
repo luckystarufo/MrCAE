@@ -256,96 +256,6 @@ class CAE(torch.nn.Module):
             self.n_filter_groups_each_level[str(self.cur_level)] += 1
         self.n_params.append(sum(p.numel() for p in self.parameters()))
 
-    def train_on_this_level_wrapper(self, dataset, max_epoch, batch_size, widen_sizes,
-                                    tol=None, lr=1e-3, std=0.02, verbose=1, w=0.5, model_path=None):
-        """
-        :param dataset: a MultiScaleDynamicsDataSet object
-        :param max_epoch: maximum number of epochs
-        :param batch_size: batch size
-        :param widen_sizes: a list of integers specifying widening size at each step
-        :param tol: a float, represent error tolerance or set to None as default
-        :param lr: learning rate
-        :param std: noise level to break the symmetry for init
-        :param verbose: verbose level, controls the print-out message
-        :param w: loss = w * l2_loss + (1-w) * l_inf_loss
-        :param model_path: path that is used to save the model at each level
-        :return: three lists of training info
-        """
-        # pre-process
-        if isinstance(widen_sizes, int):
-            widen_sizes = [widen_sizes]
-        assert isinstance(widen_sizes, list), \
-            print('widen sizes should be a list of positive integers!')
-
-        # collectors
-        arch = list()
-        n_params = list()
-        all_val_losses = list()
-        best_val_losses = list()
-        max_pos_set = set()
-
-        print('*************************************************')
-        print('Model @Level {}:'.format(self.cur_level+1))
-        print('Perform deepening & widening, train each architectures ...')
-
-        # deepen
-        self.deeper_op(std=std)
-        if verbose > 1:
-            print('model layers: ')
-            print(list(self._modules.keys()))
-        val_losses, best_val_loss, mset = self.train_arch(dataset, max_epoch=max_epoch, batch_size=batch_size, lr=lr, tol=tol, verbose=verbose,w=w)
-        # collect results & save model
-        arch.append(1)
-        max_pos_set.update(mset)
-        n_params.append(sum(p.numel() for p in self.parameters()))
-        all_val_losses.append(val_losses)
-        best_val_losses.append(best_val_loss)
-
-        filter_index = self.n_filter_groups_each_level[str(self.cur_level)] - 1
-        if model_path is not None:
-            torch.save(self, os.path.join(model_path, 'model_L{}_{}.pt'.
-                                          format(self.cur_level, filter_index)))
-        # log
-        print('')
-        if verbose > 1 and tol is not None:
-            print('level {}, resolved map {} (after training):'.format(self.cur_level, filter_index))
-            print(self.resolved_maps[str(self.cur_level)][str(filter_index)])
-
-        print('-------------------------------------------------')
-
-        # widen
-        cnt = 0
-        while not self.level_clear[str(self.cur_level)] and cnt < len(widen_sizes):
-            n_filters = widen_sizes[cnt]
-            cnt += 1
-            if verbose > 1:
-                print('prepare attaching {} more filters to current level arch ...'.format(n_filters))
-            self.wider_op(n_filters=n_filters, std=std)
-            if verbose > 1:
-                print('model layers: ')
-                print(list(self._modules.keys()))
-            val_losses, best_val_loss, mset = self.train_arch(dataset, max_epoch=max_epoch, batch_size=batch_size, lr=lr, tol=tol, verbose=verbose, w=w)
-            # collect results & save model
-            arch.append(arch[-1] + n_filters)
-            max_pos_set.update(mset)
-            n_params.append(sum(p.numel() for p in self.parameters()))
-            all_val_losses.append(val_losses)
-            best_val_losses.append(best_val_loss)
-            filter_index = self.n_filter_groups_each_level[str(self.cur_level)] - 1
-            if model_path is not None:
-                torch.save(self, os.path.join(model_path, 'model_L{}_{}.pt'.
-                                              format(self.cur_level, filter_index)))
-            # log
-            print('')
-            if verbose > 1 and tol is not None:
-                print('level {}, resolved map {} (after training):'.format(self.cur_level, filter_index))
-                print(self.resolved_maps[str(self.cur_level)][str(filter_index)])
-
-            print('-------------------------------------------------')
-
-        print('*************************************************')
-
-        return arch, n_params, all_val_losses, best_val_losses, max_pos_set
 
     def train_arch(self, dataset, max_epoch, batch_size,
                    tol=None, lr=1e-3, w=0.5, verbose=1):
@@ -522,15 +432,13 @@ def train_net(archs, dataset, max_epoch, batch_size, result_path,
     else:
         use_maps = True
 
-    # create model
-    n_levels = dataset.n_levels
-    model = CAE(n_levels=n_levels, activation=activation, use_maps=use_maps)
+    model = None
 
     # training
     for i in range(n_levels):
         model = train_net_one_level(arch=archs[i], dataset=dataset, max_epoch=max_epoch,
                                     batch_size=batch_size, result_path=result_path,
-                                    model_path=model_path, load_model=None, tol=tols[i],
+                                    model_path=model_path, load_model=model, tol=tols[i],
                                     activation=activation, lr=lr, w=w, std=std,
                                     verbose=verbose)
 
@@ -571,12 +479,7 @@ def train_net_one_level(arch, dataset, max_epoch, batch_size, result_path,
     else:
         use_maps = False
 
-    # create/load the model
-    n_levels = dataset.n_levels
-    if load_model is None:
-        model = CAE(n_levels=n_levels, activation=activation, use_maps=use_maps)
-    else:
-        model = load_model
+    model = load_model
     widen_sizes = [arch[k+1] - arch[k] for k in range(len(arch)-1)]
 
     # training
